@@ -2,6 +2,7 @@ package com.uniovi.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,14 @@ public class MarksService {
 
 	public void deleteMark(Long id) {
 		marksRepository.deleteById(id);
+	}
+	
+	public List<Mark> getFilteredByMinMaxScore(int min, int max) {
+		List<Mark> marks = new ArrayList<Mark>();
+		marksRepository.findAll().forEach(marks::add);
+		return marks.stream()
+				.filter((mark) -> mark.getScore() >= min && mark.getScore() <= max)
+				.collect(Collectors.toList());
 	}
 
 }

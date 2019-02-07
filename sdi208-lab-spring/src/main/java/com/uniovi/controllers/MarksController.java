@@ -1,5 +1,8 @@
 package com.uniovi.controllers;
 
+import java.util.Collections;
+
+import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.uniovi.entities.Mark;
 import com.uniovi.services.MarksService;
@@ -57,6 +61,18 @@ public class MarksController {
 		mark.setId(id);
 		marksService.addMark(mark);
 		return "redirect:/mark/details/" + id;
+	}
+	
+	@RequestMapping("/mark/filter")
+	public String getFilter(Model model) {
+		model.addAttribute("markList", Collections.<Mark>emptyList());
+		return "mark/filter";
+	}
+	
+	@RequestMapping(value = "/mark/filter", method = RequestMethod.POST)
+	public String getFilter(Model model, @RequestParam Integer min, @RequestParam Integer max) {
+		model.addAttribute("markList", marksService.getFilteredByMinMaxScore(min, max));
+		return "mark/filter";
 	}
 
 }
