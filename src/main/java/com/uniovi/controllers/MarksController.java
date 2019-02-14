@@ -2,7 +2,6 @@ package com.uniovi.controllers;
 
 import java.util.Collections;
 
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +24,12 @@ public class MarksController {
 	public String getList(Model model) {
 		model.addAttribute("markList", marksService.getMarks());
 		return "mark/list";
+	}
+
+	@RequestMapping("/mark/list/update")
+	public String updateList(Model model) {
+		model.addAttribute("markList", marksService.getMarks());
+		return "mark/list :: tableMarks";
 	}
 
 	@RequestMapping(value = "/mark/add")
@@ -62,13 +67,13 @@ public class MarksController {
 		marksService.addMark(mark);
 		return "redirect:/mark/details/" + id;
 	}
-	
+
 	@RequestMapping("/mark/filter")
 	public String getFilter(Model model) {
 		model.addAttribute("markList", Collections.<Mark>emptyList());
 		return "mark/filter";
 	}
-	
+
 	@RequestMapping(value = "/mark/filter", method = RequestMethod.POST)
 	public String getFilter(Model model, @RequestParam Integer min, @RequestParam Integer max) {
 		model.addAttribute("markList", marksService.getFilteredByMinMaxScore(min, max));
