@@ -3,21 +3,21 @@ package com.uniovi.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.uniovi.entities.User;
 import com.uniovi.repositories.UsersRepository;
 
+@Service
 public class UsersService {
 	
 	@Autowired
 	private UsersRepository usersRepository;
-
-	@PostConstruct
-	public void init() {
-	}
+	
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	public List<User> getUsers() {
 		List<User> users = new ArrayList<User>();
@@ -26,15 +26,19 @@ public class UsersService {
 	}
 
 	public User getUser(Long id) {
-		return usersRepository.findById(id).get();
+		return usersRepository.findById(id).orElse(null);
 	}
 
 	public void addUser(User user) {
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		usersRepository.save(user);
+	}
+
+	public User getUserByDni(String dni) {
+		return usersRepository.findByDni(dni);
 	}
 
 	public void deleteUser(Long id) {
 		usersRepository.deleteById(id);
 	}
-
 }
