@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.uniovi.entities.User;
 import com.uniovi.services.SecurityService;
 import com.uniovi.services.UsersService;
+import com.uniovi.validators.AddUserFormValidator;
 import com.uniovi.validators.SignUpFormValidator;
 
 @Controller
@@ -28,6 +28,9 @@ public class UsersController {
 
 	@Autowired
 	private SignUpFormValidator signUpFormValidator;
+	
+	@Autowired
+	private AddUserFormValidator addUserFormValidator;
 
 	@RequestMapping("/user/list")
 	public String getListado(Model model) {
@@ -35,14 +38,19 @@ public class UsersController {
 		return "user/list";
 	}
 
-	@RequestMapping("/user/add")
+	@RequestMapping(value = "/user/add", method = RequestMethod.GET)
 	public String getUser(Model model) {
 		model.addAttribute("usersList", usersService.getUsers());
+		model.addAttribute("user", new User());
 		return "user/add";
 	}
 
 	@RequestMapping(value = "/user/add", method = RequestMethod.POST)
-	public String setUser(@ModelAttribute User user) {
+	public String setUser(@Validated User user, BindingResult result) {
+		addUserFormValidator.validate(user, result);
+		if (result.hasErrors()) {
+			return "/user/add";
+		}
 		usersService.addUser(user);
 		return "redirect:/user/list";
 	}
@@ -59,15 +67,18 @@ public class UsersController {
 		return "redirect:/user/list";
 	}
 
-	@RequestMapping("/user/edit/{id}")
+	@RequestMapping(value = "/user/edit/{id}", method = RequestMethod.GET)
 	public String getEdit(Model model, @PathVariable Long id) {
-		User user = usersService.getUser(id);
-		model.addAttribute("user", user);
+		model.addAttribute("user", usersService.getUser(id));
 		return "user/edit";
 	}
 
 	@RequestMapping(value = "/user/edit/{id}", method = RequestMethod.POST)
-	public String setEdit(Model model, @PathVariable Long id, @ModelAttribute User user) {
+	public String setEdit(Model model, @PathVariable Long id, @Validated User user, BindingResult result) {
+		addUserFormValidator.validate(user, result);
+		if (result.hasErrors()) {
+			return "/user/edit/" + id; 
+		}
 		user.setId(id);
 		usersService.addUser(user);
 		return "redirect:/user/details/" + id;
