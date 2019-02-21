@@ -1,8 +1,12 @@
 package com.uniovi.services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +16,9 @@ import com.uniovi.repositories.MarksRepository;
 
 @Service
 public class MarksService {
+	
+	@Autowired
+	private HttpSession httpSession;
 
 	@Autowired
 	private MarksRepository marksRepository;
@@ -23,7 +30,15 @@ public class MarksService {
 	}
 
 	public Mark getMark(Long id) {
-		return marksRepository.findById(id).get();
+		@SuppressWarnings("unchecked")
+		Set<Mark> consultedList = (Set<Mark>) httpSession.getAttribute("consultedList");
+		if (consultedList == null) {
+			consultedList = new HashSet<Mark>();
+		}
+		Mark markObtained = marksRepository.findById(id).get();
+		consultedList.add(markObtained);
+		httpSession.setAttribute("consultedList", consultedList);
+		return markObtained;
 	}
 
 	public void addMark(Mark mark) {
@@ -34,12 +49,11 @@ public class MarksService {
 	public void deleteMark(Long id) {
 		marksRepository.deleteById(id);
 	}
-	
+
 	public List<Mark> getFilteredByMinMaxScore(int min, int max) {
 		List<Mark> marks = new ArrayList<Mark>();
 		marksRepository.findAll().forEach(marks::add);
-		return marks.stream()
-				.filter((mark) -> mark.getScore() >= min && mark.getScore() <= max)
+		return marks.stream().filter((mark) -> mark.getScore() >= min && mark.getScore() <= max)
 				.collect(Collectors.toList());
 	}
 

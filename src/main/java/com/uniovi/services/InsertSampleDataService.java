@@ -6,9 +6,9 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import com.uniovi.entities.Mark;
 import com.uniovi.entities.User;
-
 
 public class InsertSampleDataService {
 	@Autowired
