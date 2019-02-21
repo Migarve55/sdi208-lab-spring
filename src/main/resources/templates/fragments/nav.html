@@ -16,9 +16,8 @@
 					th:text="#{mark.title}" data-toggle="dropdown" href="#">
 						Gestión de notas <span class="caret"></span>
 				</a>
-					<ul class="dropdown-menu" sec:authorize="hasRole('ROLE_PROFESSOR')">
-						<li><a href="/mark/add" th:text="#{mark.add}">Agregar
-								Nota</a></li>
+					<ul class="dropdown-menu">
+						<li sec:authorize="hasRole('ROLE_PROFESSOR')"><a href="/mark/add" th:text="#{mark.add}">Agregar Nota</a></li>
 						<li><a href="/mark/list" th:text="#{mark.list}">Ver Notas</a></li>
 					</ul></li>
 				<li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_ADMIN')" ><a class="dropdown-toggle"
