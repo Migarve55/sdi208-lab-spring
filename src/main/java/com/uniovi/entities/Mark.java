@@ -14,6 +14,7 @@ public class Mark {
 	private Long id;
 	private String description;
 	private Double score;
+	private Boolean resend = false;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
@@ -70,6 +71,14 @@ public class Mark {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Boolean getResend() {
+		return resend;
+	}
+
+	public void setResend(Boolean resend) {
+		this.resend = resend;
 	}
 
 }

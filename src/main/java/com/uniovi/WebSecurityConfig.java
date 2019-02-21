@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 
 @Configuration
 @EnableWebSecurity
@@ -22,12 +23,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
+	@Bean
+	public SpringSecurityDialect securityDialect() {
+		return new SpringSecurityDialect();
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-		.authorizeRequests()
+		http
+			.csrf().disable()
+			.authorizeRequests()
 				.antMatchers("/css/**", "/img/**", "/script/**", "/", "/signup", "/login/**").permitAll()
+				.antMatchers("/mark/add").hasAuthority("ROLE_PROFESSOR")
+				.antMatchers("/mark/edit/*").hasAuthority("ROLE_PROFESSOR")
+				.antMatchers("/mark/delete/*").hasAuthority("ROLE_PROFESSOR")
+				.antMatchers("/mark/**").hasAnyAuthority("ROLE_STUDENT","ROLE_PROFESSOR","ROLE_ADMIN")
+				.antMatchers("/user/**").hasAnyAuthority("ROLE_ADMIN")
 				.anyRequest().authenticated()
 					.and()
 				.formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/home")

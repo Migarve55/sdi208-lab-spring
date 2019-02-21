@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.uniovi.entities.Mark;
 import com.uniovi.services.MarksService;
@@ -20,12 +21,12 @@ import com.uniovi.validators.AddMarkFormValidator;
 @Controller
 public class MarksController {
 
-	@Autowired 
+	@Autowired
 	private MarksService marksService;
-	
+
 	@Autowired
 	private UsersService usersService;
-	
+
 	@Autowired
 	private AddMarkFormValidator addMarkFormValidator;
 
@@ -51,7 +52,7 @@ public class MarksController {
 	@RequestMapping(value = "/mark/add", method = RequestMethod.POST)
 	public String setMark(@Validated Mark mark, BindingResult result, Model model) {
 		model.addAttribute("usersList", usersService.getUsers());
-	    addMarkFormValidator.validate(mark, result);
+		addMarkFormValidator.validate(mark, result);
 		if (result.hasErrors()) {
 			return "/mark/add";
 		}
@@ -78,10 +79,12 @@ public class MarksController {
 	}
 
 	@RequestMapping(value = "/mark/edit/{id}", method = RequestMethod.POST)
-	public String setEdit(Model model, @PathVariable Long id, @Validated Mark mark, BindingResult result) {
+	public String setEdit(Model model, @PathVariable Long id, @Validated Mark mark, BindingResult result,
+			RedirectAttributes redirectAttributes) {
 		addMarkFormValidator.validate(mark, result);
 		if (result.hasErrors()) {
-			return "/mark/edit/" + id;
+			redirectAttributes.addAttribute("mark", mark);
+			return "redirect:/mark/edit/" + id;
 		}
 		Mark original = marksService.getMark(id);
 		// modificar solo score y description
@@ -89,6 +92,18 @@ public class MarksController {
 		original.setDescription(mark.getDescription());
 		marksService.addMark(original);
 		return "redirect:/mark/details/" + id;
+	}
+
+	@RequestMapping(value = "/mark/{id}/resend", method = RequestMethod.GET)
+	public String setResendTrue(Model model, @PathVariable Long id) {
+		marksService.setMarkResend(true, id);
+		return "redirect:/mark/list";
+	}
+
+	@RequestMapping(value = "/mark/{id}/noresend", method = RequestMethod.GET)
+	public String setResendFalse(Model model, @PathVariable Long id) {
+		marksService.setMarkResend(false, id);
+		return "redirect:/mark/list";
 	}
 
 	@RequestMapping("/mark/filter")
